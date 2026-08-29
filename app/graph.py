@@ -379,8 +379,48 @@ Errors:
         "answer": response.content,
     }
 
+def handle_small_talk(
+    state: TravelState,
+) -> TravelState:
+    """Detect and handle casual conversation."""
+    user_request = state["user_request"].lower()
+    
+    # Keywords that indicate travel intent
+    travel_keywords = [
+        "fly", "flight", "travel", "trip", "destination", 
+        "from", "to", "depart", "return", "budget",
+        "price", "date", "when", "where", "airport"
+    ]
+    
+    has_travel_intent = any(keyword in user_request for keyword in travel_keywords)
+    
+    if has_travel_intent:
+        # Continue with normal extraction
+        return state
+    
+    # User is making small talk - generate friendly response
+    response = llm.invoke([
+        SystemMessage(content="You are a friendly travel assistant. Respond warmly to their greeting and ask where they would like to travel. Keep it to 1-2 sentences."),
+        HumanMessage(content=user_request)
+    ])
+    
+    return {
+        "answer": response.content,
+        "missing": [],
+        "trip": {},
+        "weather": {},
+        "selected_destinations": [],
+        "flights": [],
+        "ranked_flights": {},
+        "errors": [],
+    }
+
 builder = StateGraph(TravelState)
 
+builder.add_node(
+    "handle_small_talk",
+    handle_small_talk,
+)
 builder.add_node(
     "extract_requirements",
     extract_requirements,
@@ -418,7 +458,16 @@ builder.add_node(
 
 builder.add_edge(
     START,
-    "extract_requirements",
+    "handle_small_talk",
+)
+
+builder.add_conditional_edges(
+    "handle_small_talk",
+    lambda state: "finish" if state.get("answer") else "extract_requirements",
+    {
+        "finish": END,
+        "extract_requirements": "extract_requirements",
+    },
 )
 
 builder.add_edge(
