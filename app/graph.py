@@ -23,8 +23,8 @@ from app.providers.weather import get_weather
 
 load_dotenv()
 required_variables = [
-    "GROVE_API_KEY",
-    "GROVE_MODEL",
+    "API_KEY",
+    "MODEL",
     "OPENAI_BASE_URL",
     "SERPAPI_API_KEY",
 ]
@@ -55,11 +55,11 @@ class TravelState(TypedDict, total=False):
     answer: str
 
 llm = ChatOpenAI(
-    model=os.environ["GROVE_MODEL"],
-    api_key=os.environ["GROVE_API_KEY"],
+    model=os.environ["MODEL"],
+    api_key=os.environ["API_KEY"],
     base_url=os.environ["OPENAI_BASE_URL"],
     default_headers={
-        "api-key": os.environ["GROVE_API_KEY"]
+        "api-key": os.environ["API_KEY"]
     },
     temperature=0,
 )
