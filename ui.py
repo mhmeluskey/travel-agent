@@ -67,6 +67,7 @@ st.markdown(
     <div class="hero">
         <h1>✈️ TripWise</h1>
         <p>Find affordable flights to destinations with great weather.</p>
+        <p>Weather-first planning for your next escape.</p>
     </div>
     """,
     unsafe_allow_html=True,
